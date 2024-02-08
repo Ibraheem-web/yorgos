@@ -1,0 +1,38 @@
+name: Jekyll Build
+
+on:
+  push:
+    branches:
+      - main # Change this to your main branch name
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: 2.7 # Adjust the version if needed
+
+    - name: Install Bundler
+      run: |
+        gem install bundler:2.5.5
+        bundle config set --local path 'vendor/bundle'
+        bundle config set --local without 'development:test'
+
+    - name: Install Dependencies
+      run: bundle install
+
+    - name: Build Jekyll
+      run: bundle exec jekyll build
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+        publish_dir: ./_site
